@@ -1,0 +1,117 @@
+---
+# Security hardening tasks for AWS threat lab
+
+- name: Update system packages
+  apt:
+    update_cache: yes
+    upgrade: dist
+  when: ansible_os_family == "Debian"
+
+- name: Install security tools
+  apt:
+    name:
+      - fail2ban
+      - unattended-upgrades
+      - apt-listchanges
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Configure unattended upgrades
+  copy:
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    content: |
+      Unattended-Upgrade::Allowed-Origins {
+        "${distro_id}:${distro_codename}-security";
+        "${distro_id}ESMApps:${distro_codename}-apps-security";
+        "${distro_id}ESM:${distro_codename}-infra-security";
+      };
+      Unattended-Upgrade::AutoFixDependencies "true";
+      Unattended-Upgrade::MinimalSteps "true";
+      Unattended-Upgrade::Remove-New-Unused-Dependencies "true";
+      Unattended-Upgrade::Remove-Unused-Boot-Grub2-Entries "true";
+  notify: restart unattended-upgrades
+
+- name: Configure periodic unattended upgrades
+  copy:
+    dest: /etc/apt/apt.conf.d/20periodic
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Download-Upgradeable-Packages "1";
+      APT::Periodic::AutocleanInterval "7";
+      APT::Periodic::Unattended-Upgrade "1";
+      APT::Periodic::RandomSleep "0";
+
+- name: Disable root login via SSH
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PermitRootLogin'
+    line: 'PermitRootLogin no'
+    state: present
+  notify: restart ssh
+
+- name: Disable password authentication
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PasswordAuthentication'
+    line: 'PasswordAuthentication no'
+    state: present
+  notify: restart ssh
+
+- name: Disable empty password login
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PermitEmptyPasswords'
+    line: 'PermitEmptyPasswords no'
+    state: present
+  notify: restart ssh
+
+- name: Enable SSH strict mode
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?StrictModes'
+    line: 'StrictModes yes'
+    state: present
+  notify: restart ssh
+
+- name: Set SSH log level
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?LogLevel'
+    line: 'LogLevel VERBOSE'
+    state: present
+  notify: restart ssh
+
+- name: Limit SSH connection attempts
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?MaxAuthTries'
+    line: 'MaxAuthTries 3'
+    state: present
+  notify: restart ssh
+
+- name: Configure fail2ban
+  copy:
+    dest: /etc/fail2ban/jail.local
+    content: |
+      [DEFAULT]
+      bantime = 3600
+      findtime = 600
+      maxretry = 3
+
+      [sshd]
+      enabled = true
+      port = ssh
+      logpath = %(sshd_log)s
+  notify: restart fail2ban
+
+- name: Enable and start fail2ban
+  service:
+    name: fail2ban
+    state: started
+    enabled: yes
+
+- name: Set SSH daemon to start on boot
+  service:
+    name: ssh
+    state: started
+    enabled: yes

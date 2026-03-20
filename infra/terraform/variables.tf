@@ -83,3 +83,33 @@ variable "host_log_retention_days" {
   type        = number
   default     = 7
 }
+
+variable "log_retention_days" {
+  description = "Retention in days for S3 evidence logs"
+  type        = number
+  default     = 90
+}
+
+variable "enable_storage" {
+  description = "Enable S3 evidence bucket with lifecycle rules"
+  type        = bool
+  default     = true
+}
+
+variable "enable_budget" {
+  description = "Enable AWS budget with cost alerts"
+  type        = bool
+  default     = true
+}
+
+variable "budget_monthly_limit" {
+  description = "Monthly budget limit in USD"
+  type        = number
+  default     = 10
+}
+
+variable "budget_alert_threshold" {
+  description = "Percentage of budget to trigger alert (0-100)"
+  type        = number
+  default     = 80
+}

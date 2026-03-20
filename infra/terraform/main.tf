@@ -46,3 +46,25 @@ module "alerts" {
   alert_email          = var.alert_email
   cloudwatch_log_group = module.logging[0].cloudwatch_log_group_name
 }
+
+module "storage" {
+  count  = var.enable_storage ? 1 : 0
+  source = "./modules/storage"
+
+  project_name   = var.project_name
+  environment    = var.environment
+  aws_account_id = var.aws_account_id
+  retention_days = var.log_retention_days
+  archive_days   = 30
+}
+
+module "budget" {
+  count  = var.enable_budget ? 1 : 0
+  source = "./modules/budget"
+
+  project_name    = var.project_name
+  environment     = var.environment
+  alert_email     = var.alert_email
+  monthly_limit   = var.budget_monthly_limit
+  alert_threshold = var.budget_alert_threshold
+}
