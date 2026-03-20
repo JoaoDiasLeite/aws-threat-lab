@@ -12,7 +12,7 @@ This document describes the security hardening applied to the EC2 instance in th
 
 File: `/etc/ssh/sshd_config`
 
-```
+```bash
 # Disable root login entirely
 PermitRootLogin no
 
@@ -33,7 +33,7 @@ MaxAuthTries 3
 ### Why These Changes?
 
 | Setting | Reason |
-|---------|--------|
+| ------- | ------ |
 | `PermitRootLogin no` | Prevents direct root compromise; eliminates high-value target |
 | `PasswordAuthentication no` | Eliminates brute-force password attacks; keys are cryptographically stronger |
 | `PermitEmptyPasswords no` | Ensures all accounts have passwords/keys; prevents null-password bypass |
@@ -60,7 +60,7 @@ MaxAuthTries 3
 
 File: `/etc/fail2ban/jail.local`
 
-```
+```bash
 [DEFAULT]
 bantime = 3600          # Ban for 1 hour
 findtime = 600          # Within 10-minute window
@@ -93,12 +93,13 @@ logpath = %(sshd_log)s
 ### Configuration
 
 Installed packages:
+
 - `unattended-upgrades` — automatic security + critical updates
 - `apt-listchanges` — email summaries of changes
 
 File: `/etc/apt/apt.conf.d/50unattended-upgrades`
 
-```
+```bash
 Unattended-Upgrade::Allowed-Origins {
   "${distro_id}:${distro_codename}-security";
   "${distro_id}ESMApps:${distro_codename}-apps-security";
@@ -122,7 +123,7 @@ Unattended-Upgrade::Remove-Unused-Boot-Grub2-Entries "true";
 ### Benefits
 
 | Benefit | Impact |
-|---------|--------|
+| ------- | ------ |
 | Automatic patching | Reduces window of vulnerability for known CVEs |
 | Security focus | Only installs security/critical, not optional updates |
 | Minimal disruption | Runs during off-peak hours |
@@ -152,7 +153,7 @@ authorized_key:
 ### Security Implications
 
 | Aspect | Security Benefit |
-|--------|-----------------|
+| ------ | ---------------- |
 | Non-root user | Limits damage if compromised |
 | sudoers access | Enables privilege escalation when needed |
 | SSH key auth | No password stored on system |
@@ -183,6 +184,7 @@ authorized_key:
 ### Log Forwarding (via CloudWatch Agent)
 
 All logs are forwarded to CloudWatch in real-time:
+
 - Enables centralized analysis
 - Survives EC2 instance loss (not stored only on instance)
 - Integrated with CloudWatch alarms
@@ -195,6 +197,7 @@ All logs are forwarded to CloudWatch in real-time:
 ### Purpose
 
 Centralized storage for long-term audit logs:
+
 - CloudTrail logs
 - Application logs
 - System logs
@@ -202,7 +205,7 @@ Centralized storage for long-term audit logs:
 ### Features
 
 | Feature | Benefit |
-|---------|---------|
+| ------- | ------- |
 | Encryption (SSE-S3) | Data protected at rest |
 | Versioning | Protects against accidental/malicious deletion |
 | Lifecycle Rules | Archives to Glacier after 30 days, deletes after 90 days |
@@ -211,7 +214,7 @@ Centralized storage for long-term audit logs:
 
 ### Lifecycle Policy
 
-```
+```bash
 0-30 days:     S3 Standard (hot data)
 30-90 days:    Glacier (archived, infrequent access)
 90+ days:      Deleted (permanent removal)
@@ -230,7 +233,7 @@ Centralized storage for long-term audit logs:
 ### Cost Control Strategy
 
 | Strategy | Controls |
-|----------|----------|
+| ------- | --------- |
 | t2.micro instance | Stays within free tier (~$0.01/month with some credits) |
 | Minimal storage | Only stores essential logs |
 | S3 lifecycle archival | Reduces storage costs over time |

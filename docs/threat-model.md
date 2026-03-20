@@ -71,12 +71,14 @@ The AWS Threat Lab is designed to simulate a realistic cloud environment for dem
 **Threat**: FastAPI backend exploited to execute arbitrary code or access data
 
 **Attack vectors**:
+
 - SQL injection (if database used later)
 - API injection attacks
 - Deserialization attacks
 - Path traversal
 
 **Mitigations**:
+
 - ✅ Backend bound to localhost (not exposed publicly)
 - ✅ NGINX reverse proxy in front of application
 - ✅ Only HTTP/HTTPS exposed to internet
@@ -84,6 +86,7 @@ The AWS Threat Lab is designed to simulate a realistic cloud environment for dem
 - ⚠️ Application logs sent to CloudWatch
 
 **Detection**:
+
 - (Phase 3) NGINX error spike alarm
 - (Phase 3) Backend error spike alarm
 - (Phase 4) Simulated API abuse detection
@@ -95,17 +98,20 @@ The AWS Threat Lab is designed to simulate a realistic cloud environment for dem
 **Threat**: Attacker modifies AWS infrastructure via compromised credentials
 
 **Attack vectors**:
+
 - Leaked AWS credentials
 - Compromised IAM user
 - Role assumption attack
 
 **Mitigations**:
+
 - ✅ CloudTrail enabled and sent to S3
 - ✅ CloudTrail logs centralized to CloudWatch
 - ✅ IAM roles used instead of user credentials on EC2
 - ✅ Minimal IAM permissions (principle of least privilege)
 
 **Detection**:
+
 - (Phase 3) CloudTrail metric filter for IAM policy changes
 - (Phase 3) CloudTrail metric filter for security group changes
 - (Phase 3) CloudTrail metric filter for new access keys
@@ -118,17 +124,20 @@ The AWS Threat Lab is designed to simulate a realistic cloud environment for dem
 **Threat**: Attacker launches expensive resources or performs denial-of-service
 
 **Attack vectors**:
+
 - Launching expensive compute instances
 - Transferring large amounts of data
 - DDoS triggering expensive autoscaling
 
 **Mitigations**:
+
 - ✅ AWS Budget with monthly limit ($10 USD)
 - ✅ Budget alarm set at 80% threshold
 - ✅ Email notification on budget exceeded
 - ✅ EC2 instance restricted to t2.micro
 
 **Detection**:
+
 - Budget alert email sent when threshold exceeded
 - (Manual) Review AWS costs dashboard
 
@@ -139,11 +148,13 @@ The AWS Threat Lab is designed to simulate a realistic cloud environment for dem
 **Threat**: Attacker deletes or tampers with audit logs to hide activity
 
 **Attack vectors**:
+
 - Gaining EC2 root access → delete local logs
 - Accessing S3 directly → delete CloudTrail logs
 - Disabling CloudTrail
 
 **Mitigations**:
+
 - ✅ Logs stored in multiple locations (CloudWatch + S3)
 - ✅ S3 versioning enabled on evidence bucket
 - ✅ Evidence bucket in separate AWS account (future)
@@ -152,6 +163,7 @@ The AWS Threat Lab is designed to simulate a realistic cloud environment for dem
 - ⚠️ S3 lifecycle archival to Glacier after 30 days
 
 **Detection**:
+
 - (Phase 3) Detect CloudTrail logging disabled
 - (Phase 3) Detect S3 object deletion
 - (Manual) Review CloudTrail logs for data plane events
@@ -183,7 +195,7 @@ The AWS Threat Lab is designed to simulate a realistic cloud environment for dem
 ## Residual Risks
 
 | Risk | Likelihood | Impact | Mitigation |
-|------|------------|--------|-----------|
+| ---- | ---------- | ------ | ---------- |
 | SSH key compromise | Low | High | Key rotation policy |
 | Application vulnerability | Medium | High | Code review, penetration testing |
 | CloudTrail tampering | Low | Critical | Versioning + cross-account storage |
@@ -195,6 +207,7 @@ The AWS Threat Lab is designed to simulate a realistic cloud environment for dem
 ## Compliance Notes
 
 This lab demonstrates:
+
 - ✅ Principle of least privilege
 - ✅ Defense in depth (multiple layers)
 - ✅ Logging and monitoring

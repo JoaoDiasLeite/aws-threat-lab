@@ -8,11 +8,11 @@ Scope note: optional items are deferred for now to keep costs low.
 
 ---
 
-# Phase 1 — MVP AWS Lab (Basic working environment)
+## Phase 1 — MVP AWS Lab (Basic working environment)
 
 Goal: working AWS environment with logging, monitoring, and IaC.
 
-## Infrastructure
+### Infrastructure
 
 - [x] Terraform VPC
 - [x] Terraform subnet
@@ -21,7 +21,7 @@ Goal: working AWS environment with logging, monitoring, and IaC.
 - [x] SSH key pair
 - [x] Security group (SSH restricted, HTTP open)
 
-## Logging / monitoring
+### Logging / monitoring
 
 - [x] IAM role for EC2
 - [x] CloudTrail enabled
@@ -31,7 +31,7 @@ Goal: working AWS environment with logging, monitoring, and IaC.
 - [x] SNS email alerts
 - [x] Basic CloudWatch alarm
 
-## Application
+### Application
 
 - [x] Ansible provisioning
 - [x] NGINX reverse proxy
@@ -39,13 +39,13 @@ Goal: working AWS environment with logging, monitoring, and IaC.
 - [x] systemd service
 - [x] backend bound to localhost only
 
-## Validation
+### Validation
 
 - [x] curl works
 - [x] logs visible in CloudWatch
 - [x] CloudTrail events visible
 
-## Documentation
+### Documentation
 
 - [x] README
 - [x] architecture diagram
@@ -55,18 +55,18 @@ Status: COMPLETE
 
 ---
 
-# Phase 2 — Security Hardening
+## Phase 2 — Security Hardening
 
 Goal: make the lab look like a real production environment.
 
-## Network security
+### Network security
 
 - [x] restrict SSH to trusted IP
 - [x] backend not exposed publicly
 - [x] only NGINX exposed
 - [ ] optional: private subnet (later)
 
-## Host hardening
+### Host hardening
 
 - [x] disable root login
 - [x] disable password authentication
@@ -74,24 +74,24 @@ Goal: make the lab look like a real production environment.
 - [x] automatic updates
 - [ ] firewall rules (optional)
 
-## Logging improvements
+### Logging improvements
 
 - [x] nginx logs -> CloudWatch
 - [x] syslog -> CloudWatch
 - [x] auth.log -> CloudWatch
 - [x] separate evidence S3 bucket
 
-## Cost safety
+### Cost safety
 
 - [x] AWS Budget
 - [x] budget alarm email
 
-## Storage
+### Storage
 
 - [x] S3 evidence bucket
 - [x] lifecycle rules
 
-## Documentation
+### Documentation
 
 - [x] threat-model.md
 - [x] hardening.md
@@ -100,11 +100,11 @@ Status: COMPLETE (optional items pending)
 
 ---
 
-# Phase 3 — Detection Engineering
+## Phase 3 — Detection Engineering
 
 Goal: detect suspicious activity using CloudWatch and CloudTrail.
 
-## CloudTrail detections
+### CloudTrail detections
 
 - [ ] Console login failure
 - [ ] IAM policy change
@@ -112,25 +112,25 @@ Goal: detect suspicious activity using CloudWatch and CloudTrail.
 - [ ] Security group change
 - [ ] New access key
 
-## Host detections
+### Host detections
 
 - [ ] SSH brute force detection
 - [ ] sudo abuse detection
 - [ ] nginx error spike
 - [ ] backend error spike
 
-## CloudWatch
+### CloudWatch
 
 - [ ] metric filters
 - [ ] alarms
 - [ ] dashboards
 
-## Alerts
+### Alerts
 
 - [ ] SNS email alerts
 - [ ] readable alarm messages
 
-## Documentation
+### Documentation
 
 - [ ] detections.md
 - [ ] alerts.md
@@ -138,12 +138,11 @@ Goal: detect suspicious activity using CloudWatch and CloudTrail.
 Status: NOT STARTED
 
 ---
-
-# Phase 4 — Attack Simulation
+## Phase 4 — Attack Simulation
 
 Goal: prove detections work by simulating attacks.
 
-## Simulated attacks
+### Simulated attacks
 
 - [ ] SSH brute force
 - [ ] fake login attempts
@@ -152,14 +151,14 @@ Goal: prove detections work by simulating attacks.
 - [ ] console login failure
 - [ ] CloudTrail tampering test
 
-## Evidence
+### Evidence
 
 - [ ] logs
 - [ ] screenshots
 - [ ] alarm emails
 - [ ] timeline
 
-## Scripts
+### Scripts
 
 scripts/attack/
 
@@ -168,7 +167,7 @@ scripts/attack/
 - iam_change.sh
 - login_fail.sh
 
-## Documentation
+### Documentation
 
 - [ ] incident-report.md
 - [ ] attack-timeline.md
@@ -177,38 +176,38 @@ Status: NOT STARTED
 
 ---
 
-# Phase 5 — IaC + CI/CD Polish
+## Phase 5 — IaC + CI/CD Polish
 
 Goal: make the project look professional.
 
-## Terraform
+### Terraform
 
 - [x] modules
 - [x] variables
 - [x] toggles
 - [ ] workspaces (optional)
 
-## Ansible
+### Ansible
 
 - [x] roles
 - [x] playbook
 - [ ] ansible-lint
 
-## Makefile
+### Makefile
 
 - [x] deploy
 - [x] destroy
 - [x] ansible
 - [x] wait-ssh
 
-## GitHub
+### GitHub
 
 - [ ] GitHub Actions
 - [ ] terraform fmt check
 - [ ] terraform validate
 - [ ] ansible lint
 
-## Documentation
+### Documentation
 
 - [ ] setup.md
 - [ ] usage.md
@@ -217,7 +216,7 @@ Status: PARTIAL
 
 ---
 
-# Phase 6 — Advanced Features (Optional / CV boost)
+## Phase 6 — Advanced Features (Optional / CV boost)
 
 Optional improvements for advanced cloud/security experience.
 
@@ -235,10 +234,10 @@ Status: OPTIONAL
 
 ---
 
-# Current Status
+## Current Status
 
 | Phase | Status |
-|--------|---------|
+| ----- | ------ |
 | Phase 1 | DONE |
 | Phase 2 | DONE |
 | Phase 3 | NOT STARTED |
