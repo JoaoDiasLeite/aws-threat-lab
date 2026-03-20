@@ -1,0 +1,20 @@
+- name: Update apt
+  apt:
+    update_cache: yes
+
+- name: Upgrade packages
+  apt:
+    upgrade: dist
+
+- name: Install base packages
+  apt:
+    name:
+      - vim
+      - curl
+      - htop
+      - git
+      - ufw
+      - fail2ban
+      - unattended-upgrades
+      - ca-certificates
+    state: present

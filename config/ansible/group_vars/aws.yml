@@ -1,0 +1,4 @@
+cloudwatch_log_group_auth: "/aws/ec2/aws-threat-lab/dev/auth"
+cloudwatch_log_group_syslog: "/aws/ec2/aws-threat-lab/dev/syslog"
+cloudwatch_log_group_nginx_access: "/aws/ec2/aws-threat-lab/dev/nginx/access"
+cloudwatch_log_group_nginx_error: "/aws/ec2/aws-threat-lab/dev/nginx/error"

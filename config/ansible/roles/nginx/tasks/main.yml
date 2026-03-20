@@ -1,0 +1,30 @@
+- name: Install nginx
+  apt:
+    name: nginx
+    state: present
+
+- name: Deploy nginx reverse proxy config
+  template:
+    src: threatlab.conf.j2
+    dest: /etc/nginx/sites-available/threatlab.conf
+    mode: '0644'
+  notify: Restart nginx
+
+- name: Enable threatlab nginx site
+  file:
+    src: /etc/nginx/sites-available/threatlab.conf
+    dest: /etc/nginx/sites-enabled/threatlab.conf
+    state: link
+  notify: Restart nginx
+
+- name: Disable default nginx site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Restart nginx
+
+- name: Ensure nginx is enabled and started
+  service:
+    name: nginx
+    state: started
+    enabled: yes

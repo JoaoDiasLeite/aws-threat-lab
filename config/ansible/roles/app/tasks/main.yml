@@ -1,0 +1,49 @@
+- name: Install backend dependencies
+  apt:
+    name:
+      - python3-pip
+      - python3-venv
+    state: present
+
+- name: Create app directory
+  file:
+    path: /opt/aws-threat-lab/backend
+    state: directory
+    owner: devops
+    group: devops
+    mode: '0755'
+
+- name: Copy backend app files
+  copy:
+    src: "../../../../app/backend/"
+    dest: /opt/aws-threat-lab/backend/
+    owner: devops
+    group: devops
+    mode: '0644'
+
+- name: Create Python virtual environment
+  command: python3 -m venv /opt/aws-threat-lab/backend/venv
+  args:
+    creates: /opt/aws-threat-lab/backend/venv/bin/activate
+
+- name: Install Python requirements in virtualenv
+  pip:
+    requirements: /opt/aws-threat-lab/backend/requirements.txt
+    virtualenv: /opt/aws-threat-lab/backend/venv
+    virtualenv_command: python3 -m venv
+
+- name: Install backend systemd service
+  copy:
+    src: "../../../../app/backend/systemd/threatlab-backend.service"
+    dest: /etc/systemd/system/threatlab-backend.service
+    mode: '0644'
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: true
+
+- name: Enable and start backend service
+  systemd:
+    name: threatlab-backend
+    enabled: true
+    state: started

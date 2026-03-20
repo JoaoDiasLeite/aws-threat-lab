@@ -1,0 +1,28 @@
+- name: Download CloudWatch agent package
+  get_url:
+    url: https://amazoncloudwatch-agent.s3.amazonaws.com/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+    dest: /tmp/amazon-cloudwatch-agent.deb
+    mode: '0644'
+
+- name: Install CloudWatch agent package
+  apt:
+    deb: /tmp/amazon-cloudwatch-agent.deb
+
+- name: Ensure CloudWatch agent config directory exists
+  file:
+    path: /opt/aws/amazon-cloudwatch-agent/etc
+    state: directory
+    mode: '0755'
+
+- name: Deploy CloudWatch agent config
+  template:
+    src: amazon-cloudwatch-agent.json.j2
+    dest: /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+    mode: '0644'
+  notify: Restart CloudWatch agent
+
+- name: Enable CloudWatch agent service
+  service:
+    name: amazon-cloudwatch-agent
+    enabled: true
+    state: started

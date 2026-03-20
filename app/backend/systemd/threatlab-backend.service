@@ -1,0 +1,13 @@
+[Unit]
+Description=AWS Threat Lab FastAPI Backend
+After=network.target
+
+[Service]
+User=devops
+WorkingDirectory=/opt/aws-threat-lab/backend
+ExecStart=/opt/aws-threat-lab/backend/venv/bin/python -m uvicorn main:app --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

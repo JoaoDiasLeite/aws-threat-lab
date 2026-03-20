@@ -1,0 +1,23 @@
+- name: Harden AWS threat lab server
+  hosts: aws
+  become: true
+
+  pre_tasks:
+    - name: Ensure devops user exists
+      user:
+        name: devops
+        groups: sudo
+        shell: /bin/bash
+        create_home: yes
+
+    - name: Add SSH key for devops
+      authorized_key:
+        user: devops
+        key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+  roles:
+    - common
+    - security
+    - nginx
+    - app
+    - monitoring

@@ -1,0 +1,34 @@
+- name: Create admin user
+  user:
+    name: devops
+    groups: sudo
+    shell: /bin/bash
+    create_home: yes
+
+- name: Add SSH key
+  authorized_key:
+    user: devops
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- name: Disable root login
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin'
+    line: 'PermitRootLogin no'
+
+- name: Disable password auth
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PasswordAuthentication'
+    line: 'PasswordAuthentication no'
+
+- name: Enable fail2ban
+  service:
+    name: fail2ban
+    state: started
+    enabled: yes
+
+- name: Restart ssh
+  service:
+    name: ssh
+    state: restarted

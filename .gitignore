@@ -1,0 +1,14 @@
+# Terraform variable files
+*.tfvars
+*.tfvars.json
+
+# Terraform local artifacts
+**/.terraform/
+
+# Terraform state and lock files
+*.tfstate
+*.tfstate.*
+*.terraform.lock.hcl
+
+# Ansible inventory hosts
+**/inventory/hosts.ini
