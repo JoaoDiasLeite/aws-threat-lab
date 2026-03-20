@@ -43,6 +43,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "evidence" {
     id     = "archive-to-glacier"
     status = "Enabled"
 
+    filter {}
+
     transition {
       days          = var.archive_days
       storage_class = "GLACIER"
