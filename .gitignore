@@ -12,3 +12,13 @@
 
 # Ansible inventory hosts
 **/inventory/hosts.ini
+
+# Env files
+.env
+.env.*
+
+# SSH / TLS keys
+*.pem
+*.key
+id_rsa
+id_ed25519
