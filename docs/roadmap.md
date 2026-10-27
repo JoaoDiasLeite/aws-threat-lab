@@ -17,7 +17,7 @@ Goal: working AWS environment with logging, monitoring, and IaC.
 - [x] Terraform VPC
 - [x] Terraform subnet
 - [x] Terraform route table + internet gateway
-- [x] Terraform EC2 (t3.micro)
+- [x] Terraform EC2 (t2.micro)
 - [x] SSH key pair
 - [x] Security group (SSH restricted, HTTP open)
 
@@ -106,36 +106,36 @@ Goal: detect suspicious activity using CloudWatch and CloudTrail.
 
 ### CloudTrail detections
 
-- [ ] Console login failure
-- [ ] IAM policy change
-- [ ] Root login
-- [ ] Security group change
-- [ ] New access key
+- [x] Console login failure
+- [x] IAM policy change
+- [x] Root login
+- [x] Security group change
+- [x] New access key
 
 ### Host detections
 
-- [ ] SSH brute force detection
-- [ ] sudo abuse detection
-- [ ] nginx error spike
+- [x] SSH brute force detection
+- [x] sudo abuse detection
+- [x] nginx error spike
 - [ ] backend error spike
 
 ### CloudWatch
 
-- [ ] metric filters
-- [ ] alarms
-- [ ] dashboards
+- [x] metric filters
+- [x] alarms
+- [x] dashboards
 
 ### Alerts
 
-- [ ] SNS email alerts
+- [x] SNS email alerts
 - [ ] readable alarm messages
 
 ### Documentation
 
-- [ ] detections.md
-- [ ] alerts.md
+- [x] detections.md
+- [x] alerts.md
 
-Status: NOT STARTED
+Status: MOSTLY COMPLETE
 
 ---
 ## Phase 4 — Attack Simulation
@@ -240,9 +240,9 @@ Status: OPTIONAL
 | ----- | ------ |
 | Phase 1 | DONE |
 | Phase 2 | DONE |
-| Phase 3 | NOT STARTED |
+| Phase 3 | MOSTLY COMPLETE |
 | Phase 4 | NOT STARTED |
 | Phase 5 | PARTIAL |
 | Phase 6 | OPTIONAL |
 
-Next step: start Phase 3
+Next step: finish backend error detection and improve alert readability

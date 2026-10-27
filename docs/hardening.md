@@ -4,6 +4,8 @@
 
 This document describes the security hardening applied to the EC2 instance in the AWS Threat Lab. The hardening follows industry best practices and CIS Benchmarks for Ubuntu Linux.
 
+Unless noted otherwise, this document reflects the current repository configuration rather than planned future enhancements.
+
 ---
 
 ## SSH Hardening
@@ -50,7 +52,7 @@ MaxAuthTries 3
 5. If successful → login granted
 6. If failed → log recorded, attempt counter incremented
 7. After 3 failures → connection closed
-8. Logs sent to `/var/log/auth.log` → CloudWatch → CloudWatch alarms
+8. Logs sent to `/var/log/auth.log` → CloudWatch for centralized analysis
 
 ---
 
@@ -76,14 +78,14 @@ logpath = %(sshd_log)s
 
 1. fail2ban monitors `/var/log/auth.log`
 2. When 3 failed SSH logins occur within 10 minutes
-3. The source IP is blocked for 1 hour via `iptables`
+3. The source IP is blocked for 1 hour using fail2ban's system firewall integration
 4. Blocked IP cannot establish any connection
 5. After 1 hour, IP is automatically unblocked
 
 ### Detection
 
 - fail2ban logs to `/var/log/fail2ban/fail2ban.log`
-- CloudWatch agent forwards fail2ban logs
+- CloudWatch agent currently forwards `auth.log`, `syslog`, and NGINX logs, but not fail2ban logs
 - (Phase 3) CloudWatch alarm on fail2ban ban event
 
 ---
@@ -113,12 +115,12 @@ Unattended-Upgrade::Remove-Unused-Boot-Grub2-Entries "true";
 
 ### How It Works
 
-1. `apt` runs daily at a fixed time
+1. `apt` is configured to run daily
 2. Fetches available security & critical updates
 3. Automatically installs critical security patches
 4. Removes old/unused packages
-5. (Optionally) sends email summary
-6. System reboots automatically if kernel is updated
+5. `apt-listchanges` is installed, but email delivery is not explicitly configured in this repo
+6. Automatic reboot-after-upgrade is not explicitly configured in this repo
 
 ### Benefits
 
@@ -164,8 +166,8 @@ authorized_key:
 
 - **Private key**: Stored locally on your machine (`~/.ssh/id_rsa`)
 - **Public key**: Stored on EC2 (`/home/devops/.ssh/authorized_keys`)
-- **Permissions**: Private key 600, public key 644, `~/.ssh` dir 700
-- **Backup**: Git-ignore prevents accidental commit
+- **Permissions**: standard SSH-safe permissions are expected for the private key, public key, and `~/.ssh` directory
+- **Backup**: keep the private key stored locally and out of the repository; this repo does not enforce SSH key ignore rules beyond its normal Terraform and inventory ignores
 
 ---
 
@@ -179,16 +181,28 @@ authorized_key:
 | Syslog | `/var/log/syslog` | System events, service restarts |
 | fail2ban | `/var/log/fail2ban/fail2ban.log` | Ban/unban events |
 | NGINX | `/var/log/nginx/access.log` + `/var/log/nginx/error.log` | Web traffic, errors |
-| Application | Application stdout | FastAPI logs |
+| Application | systemd journal / application stdout | FastAPI logs |
 
 ### Log Forwarding (via CloudWatch Agent)
 
-All logs are forwarded to CloudWatch in real-time:
+The current CloudWatch agent configuration forwards these logs in real time:
+
+- `/var/log/auth.log`
+- `/var/log/syslog`
+- `/var/log/nginx/access.log`
+- `/var/log/nginx/error.log`
+
+This gives:
 
 - Enables centralized analysis
 - Survives EC2 instance loss (not stored only on instance)
-- Integrated with CloudWatch alarms
+- Can be used as input for future CloudWatch alarms and log queries
 - Searchable via CloudWatch Insights
+
+Current gaps:
+
+- fail2ban logs are not yet included in the CloudWatch agent config
+- backend application logs are not yet explicitly shipped to a dedicated CloudWatch log group
 
 ---
 
@@ -199,8 +213,7 @@ All logs are forwarded to CloudWatch in real-time:
 Centralized storage for long-term audit logs:
 
 - CloudTrail logs
-- Application logs
-- System logs
+- evidence and exported artifacts captured during later phases
 
 ### Features
 
@@ -209,7 +222,7 @@ Centralized storage for long-term audit logs:
 | Encryption (SSE-S3) | Data protected at rest |
 | Versioning | Protects against accidental/malicious deletion |
 | Lifecycle Rules | Archives to Glacier after 30 days, deletes after 90 days |
-| Access Logging | Logs all S3 access for audit |
+| Server access logging | Configured with `target_prefix = "s3-access-logs/"` |
 | Block Public Access | Prevents accidental public exposure |
 
 ### Lifecycle Policy
@@ -234,18 +247,18 @@ Centralized storage for long-term audit logs:
 
 | Strategy | Controls |
 | ------- | --------- |
-| t2.micro instance | Stays within free tier (~$0.01/month with some credits) |
+| t2.micro instance | Keeps the lab on a low-cost instance size |
 | Minimal storage | Only stores essential logs |
 | S3 lifecycle archival | Reduces storage costs over time |
 | Budget limit + alert | Forces review if over budget |
 
 ### Expected Monthly Cost
 
-- EC2 t2.micro: $0–$1 (free tier, or small charge)
-- S3 storage: $0.01–$0.05 (minimal logs)
-- CloudTrail: Included (first 1 CloudTrail trail free)
-- CloudWatch: $0.50–$1 (logs + alarms)
-- **Total**: ~$0.50–$2 USD
+- EC2 t2.micro: low-cost baseline, but actual price depends on region and account pricing
+- S3 storage: low for this lab, but depends on retained evidence and access logs
+- CloudTrail: often low-cost for a single management-events trail, but review AWS billing for exact charges
+- CloudWatch: depends on log ingestion, retention, and alarms
+- **Total**: expected to stay low, with AWS Budget alerts providing a safety net
 
 ---
 
@@ -292,7 +305,7 @@ sudo apt list --upgradable
 
 ```bash
 # Via AWS CLI
-aws logs tail /aws/threatlab/syslog --follow
+aws logs tail /aws/ec2/aws-threat-lab/dev/syslog --follow
 
 # Via AWS Console
 # CloudWatch → Log Groups → Select log group → View logs
@@ -307,7 +320,7 @@ aws logs tail /aws/threatlab/syslog --follow
 - [ ] Review AWS Budgets email alerts
 - [ ] Check CloudTrail logs for suspicious activity
 - [ ] Review fail2ban bans (if any)
-- [ ] Update rootless user SSH keys annually
+- [ ] Rotate non-root user SSH keys annually
 
 ### Annual Tasks
 

@@ -4,6 +4,8 @@
 
 The AWS Threat Lab is designed to simulate a realistic cloud environment for demonstrating detection engineering and security hardening. This document outlines the potential threats and how they are mitigated.
 
+Unless noted otherwise, this document reflects the current repository configuration and calls out future detections separately.
+
 ---
 
 ## Assets
@@ -38,9 +40,9 @@ The AWS Threat Lab is designed to simulate a realistic cloud environment for dem
 - ✅ Max 3 authentication attempts per connection
 
 **Detection**:
-- Failed login attempts logged to syslog → CloudWatch
-- fail2ban alerts on repeated failed login
-- CloudWatch alarm on high authentication failure rate
+- Failed login attempts logged to `auth.log` and forwarded to CloudWatch
+- fail2ban can block repeated failed login attempts on the host
+- Host-based SSH brute-force alarms are planned for a later phase
 
 ---
 
@@ -61,7 +63,7 @@ The AWS Threat Lab is designed to simulate a realistic cloud environment for dem
 
 **Detection**:
 - sudo usage logged to auth.log → CloudWatch
-- Unexpected sudo commands logged and alarmed
+- Unexpected sudo commands are not yet alarmed automatically
 - (Phase 3) Detect unauthorized sudo usage pattern
 
 ---
@@ -81,9 +83,9 @@ The AWS Threat Lab is designed to simulate a realistic cloud environment for dem
 
 - ✅ Backend bound to localhost (not exposed publicly)
 - ✅ NGINX reverse proxy in front of application
-- ✅ Only HTTP/HTTPS exposed to internet
+- ✅ Only HTTP exposed publicly in the current lab configuration
 - ⚠️ Application runs as non-root user
-- ⚠️ Application logs sent to CloudWatch
+- ⚠️ Application logs exist locally via systemd/journal, but are not yet explicitly shipped to CloudWatch
 
 **Detection**:
 
@@ -108,14 +110,16 @@ The AWS Threat Lab is designed to simulate a realistic cloud environment for dem
 - ✅ CloudTrail enabled and sent to S3
 - ✅ CloudTrail logs centralized to CloudWatch
 - ✅ IAM roles used instead of user credentials on EC2
-- ✅ Minimal IAM permissions (principle of least privilege)
+- ⚠️ EC2 uses IAM roles instead of user credentials, but least-privilege review is still an ongoing hardening task
 
 **Detection**:
 
-- (Phase 3) CloudTrail metric filter for IAM policy changes
-- (Phase 3) CloudTrail metric filter for security group changes
+- ✅ CloudTrail metric filter for IAM policy changes
+- ✅ CloudTrail metric filter for security group changes
+- ✅ CloudTrail metric filter for root account usage
+- ✅ CloudTrail metric filter for console login failures
 - (Phase 3) CloudTrail metric filter for new access keys
-- (Phase 3) SNS alert on detected changes
+- ✅ SNS alert on detected CloudTrail changes
 
 ---
 
@@ -157,22 +161,22 @@ The AWS Threat Lab is designed to simulate a realistic cloud environment for dem
 
 - ✅ Logs stored in multiple locations (CloudWatch + S3)
 - ✅ S3 versioning enabled on evidence bucket
-- ✅ Evidence bucket in separate AWS account (future)
+- ⚠️ Evidence bucket exists in the same AWS account today; cross-account storage is a future improvement
 - ✅ CloudTrail cannot be disabled by EC2 role (no permissions)
-- ⚠️ Log retention set to 90 days minimum
+- ⚠️ Evidence bucket retention is 90 days, but current host log retention in CloudWatch is 7 days
 - ⚠️ S3 lifecycle archival to Glacier after 30 days
 
 **Detection**:
 
 - (Phase 3) Detect CloudTrail logging disabled
 - (Phase 3) Detect S3 object deletion
-- (Manual) Review CloudTrail logs for data plane events
+- (Manual) Review CloudTrail management events; data event coverage is not explicitly configured in this repo
 
 ---
 
 ## Security Assumptions
 
-1. **SSH key is secure** — stored locally, never committed to Git, never shared
+1. **SSH key is secure** — stored locally and never shared
 2. **Trusted IP is correct** — SSH CIDR is accurate and includes only trusted sources
 3. **AWS account is secure** — email alerts are received and acted upon
 4. **No privilege escalation exploits** — kernel and service vulnerabilities are patched regularly
@@ -198,7 +202,7 @@ The AWS Threat Lab is designed to simulate a realistic cloud environment for dem
 | ---- | ---------- | ------ | ---------- |
 | SSH key compromise | Low | High | Key rotation policy |
 | Application vulnerability | Medium | High | Code review, penetration testing |
-| CloudTrail tampering | Low | Critical | Versioning + cross-account storage |
+| CloudTrail tampering | Low | Critical | Versioning, monitoring, future cross-account storage |
 | Privilege escalation | Low | High | Regular patching + monitoring |
 | Budget overage | Low | Medium | Alert + review |
 
@@ -211,7 +215,7 @@ This lab demonstrates:
 - ✅ Principle of least privilege
 - ✅ Defense in depth (multiple layers)
 - ✅ Logging and monitoring
-- ✅ Incident response capabilities (Phase 3)
+- ⚠️ Incident response capabilities are partial today and expand further in Phase 3+
 - ✅ Cost control measures
 
 Not intended for production use; this is a learning/demonstration environment.
