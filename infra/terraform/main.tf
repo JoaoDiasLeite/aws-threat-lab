@@ -41,10 +41,13 @@ module "alerts" {
   count  = var.enable_alerts && var.enable_logging ? 1 : 0
   source = "./modules/alerts"
 
-  project_name         = var.project_name
-  environment          = var.environment
-  alert_email          = var.alert_email
-  cloudwatch_log_group = module.logging[0].cloudwatch_log_group_name
+  project_name          = var.project_name
+  environment           = var.environment
+  aws_region            = var.aws_region
+  alert_email           = var.alert_email
+  cloudwatch_log_group  = module.logging[0].cloudwatch_log_group_name
+  auth_log_group        = module.logging[0].auth_log_group_name
+  nginx_error_log_group = module.logging[0].nginx_error_log_group_name
 }
 
 module "storage" {

@@ -42,6 +42,10 @@ output "sns_topic_name" {
   value = var.enable_alerts && var.enable_logging ? module.alerts[0].sns_topic_name : null
 }
 
+output "dashboard_name" {
+  value = var.enable_alerts && var.enable_logging ? module.alerts[0].dashboard_name : null
+}
+
 output "auth_log_group_name" {
   value = var.enable_logging ? module.logging[0].auth_log_group_name : null
 }
